@@ -57,4 +57,9 @@ jobs:
           DATABASE_URL: postgresql://vlm:vlm@localhost:5432/vlm
         run: npm run db:smoke
 
+      - name: Seed database
+        env:
+          DATABASE_URL: postgresql://vlm:vlm@localhost:5432/vlm
+        run: npx prisma db seed -- --silent || true
+
 

@@ -60,62 +60,25 @@ if [[ -z "$REPO_SLUG" ]]; then
   exit 1
 fi
 
-# Resolve workflow ID by name or file path
-resolve_workflow_id() {
-  local wid=""
-  if [[ -n "$WORKFLOW_FILE" ]]; then
-    wid=$(gh api "repos/$REPO_SLUG/actions/workflows" --jq \
-      "([.workflows[] | select(.path==\"$WORKFLOW_FILE\")] | first // empty) | .id" || true)
-  else
-    wid=$(gh api "repos/$REPO_SLUG/actions/workflows" --jq \
-      "([.workflows[] | select(.name==\"$WORKFLOW_NAME\")] | first // empty) | .id" || true)
-  fi
-  if [[ -z "$wid" || "$wid" == "null" ]]; then
-    echo "Error: Workflow not found (name='$WORKFLOW_NAME' file='$WORKFLOW_FILE')." >&2
-    exit 1
-  fi
-  echo "$wid"
-}
-
-WORKFLOW_ID=$(resolve_workflow_id)
-
-# Fetch latest run for the workflow (optionally filter by branch)
-RUN_JSON=""
-if [[ -n "$BRANCH" ]]; then
-  RUN_JSON=$(gh api "repos/$REPO_SLUG/actions/workflows/$WORKFLOW_ID/runs?branch=$BRANCH&per_page=1" --jq \
-    ".workflow_runs[0]")
-else
-  RUN_JSON=$(gh api "repos/$REPO_SLUG/actions/workflows/$WORKFLOW_ID/runs?per_page=1" --jq \
-    ".workflow_runs[0]")
+# Fetch latest run ID for the workflow (optionally filter by branch) using gh run list
+if [[ -n "$WORKFLOW_FILE" ]]; then
+  # Map file to workflow name
+  WORKFLOW_NAME=$(gh api "repos/$REPO_SLUG/actions/workflows" --jq \
+    "([.workflows[] | select(.path==\"$WORKFLOW_FILE\")] | first // empty) | .name")
 fi
 
-if [[ -z "$RUN_JSON" || "$RUN_JSON" == "null" ]]; then
-  echo "Error: No runs found for workflow." >&2
+RUN_ID=$(gh run list --workflow "$WORKFLOW_NAME" ${BRANCH:+--branch "$BRANCH"} --limit 1 --json databaseId --jq '.[0].databaseId')
+
+if [[ -z "$RUN_ID" || "$RUN_ID" == "null" ]]; then
+  echo "Error: No runs found for workflow '$WORKFLOW_NAME' ${BRANCH:+on branch '$BRANCH'}." >&2
   exit 2
 fi
 
-RUN_ID=$(echo "$RUN_JSON" | gh api --input - --jq .id)
-
 if $OUTPUT_JSON; then
-  echo "$RUN_JSON"
+  gh run view "$RUN_ID" --json databaseId,workflowName,displayTitle,headBranch,status,conclusion,url,createdAt
 else
-  NAME=$(echo "$RUN_JSON" | gh api --input - --jq .name)
-  STATUS=$(echo "$RUN_JSON" | gh api --input - --jq .status)
-  CONCLUSION=$(echo "$RUN_JSON" | gh api --input - --jq .conclusion)
-  EVENT=$(echo "$RUN_JSON" | gh api --input - --jq .event)
-  HEAD_BRANCH=$(echo "$RUN_JSON" | gh api --input - --jq .head_branch)
-  URL=$(echo "$RUN_JSON" | gh api --input - --jq .html_url)
-  CREATED=$(echo "$RUN_JSON" | gh api --input - --jq .created_at)
-  echo "Workflow: ${WORKFLOW_NAME}${WORKFLOW_FILE:+ ($WORKFLOW_FILE)}"
-  echo "Repo: $REPO_SLUG"
-  echo "Run ID: $RUN_ID"
-  echo "Name: $NAME"
-  echo "Branch: $HEAD_BRANCH"
-  echo "Event: $EVENT"
-  echo "Status: $STATUS"
-  echo "Conclusion: ${CONCLUSION:-n/a}"
-  echo "URL: $URL"
-  echo "Created: $CREATED"
+  gh run view "$RUN_ID" --json workflowName,displayTitle,headBranch,status,conclusion,url,createdAt --template \
+    '{{.workflowName}} | {{.displayTitle}}\nBranch: {{.headBranch}}\nStatus: {{.status}} | Conclusion: {{.conclusion}}\nURL: {{.url}}\nCreated: {{.createdAt}}\n'
 fi
 
 if $WATCH_RUN; then

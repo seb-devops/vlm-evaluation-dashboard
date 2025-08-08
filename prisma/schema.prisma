@@ -17,4 +17,200 @@ model AppMeta {
   updatedAt DateTime @updatedAt
 }
 
+// --- Core Entities (text-only, gold answers) ---
+
+model Dataset {
+  id               String     @id @default(cuid())
+  name             String
+  description      String?
+  tags             String[]
+  storageLocation  String
+  parseConfig      Json?
+  versionHash      String
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  documents        Document[]
+  samples          Sample[]
+  runs             Run[]
+}
+
+model Document {
+  id           String   @id @default(cuid())
+  datasetId    String
+  dataset      Dataset  @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  filename     String
+  fileHash     String
+  pageCount    Int
+  metadata     Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  samples      Sample[]
+}
+
+model Sample {
+  id             String    @id @default(cuid())
+  datasetId      String
+  dataset        Dataset   @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  documentId     String?
+  document       Document? @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  pageIndices    Int[]
+  inputText      String?
+  expectedAnswer String?
+  metadata       Json?
+  tags           String[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  runItems       RunItem[]
+}
+
+model PromptBinding {
+  id               String   @id @default(cuid())
+  promptSlug       String
+  promptVersion    String?  // null means track latest
+  variablesSchema  Json?
+  defaultVariables Json?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  runs             Run[]
+}
+
+model ModelConfig {
+  id               String   @id @default(cuid())
+  provider         String
+  modelId          String
+  temperature      Float?
+  maxOutputTokens  Int?
+  visionInputMode  String?
+  systemPrompt     String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  runs             Run[]
+}
+
+enum EvaluatorType {
+  LLM_JUDGE
+  HEURISTIC
+  SCHEMA
+  PAIRWISE
+}
+
+model Evaluator {
+  id        String        @id @default(cuid())
+  name      String
+  type      EvaluatorType
+  config    Json
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  runs      RunEvaluator[]
+}
+
+enum RunStatus {
+  PENDING
+  RUNNING
+  PAUSED
+  COMPLETED
+  FAILED
+  CANCELED
+  BUDGET_EXCEEDED
+}
+
+model Run {
+  id                  String        @id @default(cuid())
+  name                String
+  datasetId           String
+  dataset             Dataset       @relation(fields: [datasetId], references: [id], onDelete: Restrict)
+  datasetVersionHash  String
+  promptBindingId     String?
+  promptBinding       PromptBinding? @relation(fields: [promptBindingId], references: [id], onDelete: SetNull)
+  modelConfigId       String
+  modelConfig         ModelConfig   @relation(fields: [modelConfigId], references: [id], onDelete: Restrict)
+  status              RunStatus     @default(PENDING)
+  runParams           Json?
+  baselineRunId       String?
+  notes               String?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  items               RunItem[]
+  evaluators          RunEvaluator[]
+  aggregate           AggregateMetrics?
+}
+
+model RunEvaluator {
+  id           String    @id @default(cuid())
+  runId        String
+  evaluatorId  String
+  run          Run       @relation(fields: [runId], references: [id], onDelete: Cascade)
+  evaluator    Evaluator @relation(fields: [evaluatorId], references: [id], onDelete: Cascade)
+
+  @@unique([runId, evaluatorId])
+}
+
+enum RunItemStatus {
+  PENDING
+  SUCCESS
+  ERROR
+  SKIPPED
+}
+
+model RunItem {
+  id                     String        @id @default(cuid())
+  runId                  String
+  run                    Run           @relation(fields: [runId], references: [id], onDelete: Cascade)
+  sampleId               String
+  sample                 Sample        @relation(fields: [sampleId], references: [id], onDelete: Restrict)
+  inputPayload           Json?
+  promptVariables        Json?
+  modelOutput            Json?
+  error                  String?
+  status                 RunItemStatus @default(PENDING)
+  timings                Json?
+  tokenUsage             Json?
+  providerCostEstimate   Float?
+  langfuseTraceIds       String[]
+  evalResults            Json?
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+}
+
+model AggregateMetrics {
+  id        String  @id @default(cuid())
+  runId     String  @unique
+  run       Run     @relation(fields: [runId], references: [id], onDelete: Cascade)
+  metrics   Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProviderCredential {
+  id            String   @id @default(cuid())
+  provider      String
+  alias         String?
+  encryptedKey  String
+  rpm           Int?
+  tpm           Int?
+  budget        Float?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model PriceBook {
+  id                 String   @id @default(cuid())
+  provider           String
+  modelId            String
+  inputPer1kTokens   Float?
+  outputPer1kTokens  Float?
+  imagePricing       Json?
+  effectiveDate      DateTime?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+
 
