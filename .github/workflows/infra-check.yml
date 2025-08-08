@@ -44,6 +44,9 @@ jobs:
       - name: Lint
         run: npm run lint --if-present
 
+      - name: Type check
+        run: npx tsc -v && npx tsc --noEmit
+
       - name: Prisma generate
         run: npm run prisma:generate
 
