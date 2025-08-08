@@ -18,7 +18,9 @@
     "react-dom": "19.1.0",
     "next": "15.4.6",
     "@prisma/client": "^5.18.0",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "@aws-sdk/client-s3": "^3.684.0",
+    "@aws-sdk/s3-request-presigner": "^3.684.0"
   },
   "devDependencies": {
     "typescript": "^5",
