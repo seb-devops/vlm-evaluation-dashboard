@@ -3,6 +3,7 @@ name: Infra Check
 on:
   pull_request:
     branches: [ master ]
+  workflow_dispatch:
 
 jobs:
   compose:
