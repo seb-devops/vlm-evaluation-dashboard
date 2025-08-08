@@ -3,7 +3,7 @@ SHELL := /bin/bash
 .PHONY: up down logs ps health clean
 
 up:
-	docker compose up -d
+	docker compose up -d --wait
 
 down:
 	docker compose down -v

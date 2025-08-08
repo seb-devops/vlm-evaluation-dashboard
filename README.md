@@ -8,7 +8,7 @@ npm install
 
 # 2) Bootstrap infra (Postgres, Redis, MinIO)
 cp -n .env.example .env || true
-docker compose up -d --wait
+make up
 
 # 3) Healthcheck
 make health
