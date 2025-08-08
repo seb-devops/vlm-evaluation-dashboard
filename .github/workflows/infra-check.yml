@@ -1,0 +1,47 @@
+name: Infra Check
+
+on:
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  compose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Create env file
+        run: |
+          cat > .env <<'ENV'
+          COMPOSE_PROJECT_NAME=ci-vlm
+          POSTGRES_USER=vlm
+          POSTGRES_PASSWORD=vlm
+          POSTGRES_DB=vlm
+          POSTGRES_PORT=5432
+          REDIS_PORT=6379
+          MINIO_ROOT_USER=admin
+          MINIO_ROOT_PASSWORD=adminadmin
+          MINIO_PORT_API=9000
+          MINIO_PORT_CONSOLE=9001
+          ENV
+
+      - name: Start compose
+        run: docker compose up -d --wait
+
+      - name: Healthcheck
+        run: bash scripts/healthcheck.sh
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint --if-present
+
+
