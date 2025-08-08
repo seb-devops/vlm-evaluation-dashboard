@@ -6,12 +6,18 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate:dev": "prisma migrate dev --name init --create-only",
+    "db:migrate": "prisma migrate deploy",
+    "db:seed": "ts-node prisma/seed.ts || node prisma/seed.js",
+    "db:smoke": "ts-node scripts/db-smoke.ts || node scripts/db-smoke.js"
   },
   "dependencies": {
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "next": "15.4.6"
+    "next": "15.4.6",
+    "@prisma/client": "^5.18.0"
   },
   "devDependencies": {
     "typescript": "^5",
@@ -21,6 +27,8 @@
     "@tailwindcss/postcss": "^4",
     "tailwindcss": "^4",
     "eslint": "^9",
-    "eslint-config-next": "^15"
+    "eslint-config-next": "^15",
+    "prisma": "^5.18.0",
+    "ts-node": "^10.9.2"
   }
 }

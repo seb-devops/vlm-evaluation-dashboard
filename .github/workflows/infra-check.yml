@@ -44,4 +44,17 @@ jobs:
       - name: Lint
         run: npm run lint --if-present
 
+      - name: Prisma generate
+        run: npm run prisma:generate
+
+      - name: Run migrations
+        env:
+          DATABASE_URL: postgresql://vlm:vlm@localhost:5432/vlm
+        run: npx prisma migrate deploy
+
+      - name: DB smoke test
+        env:
+          DATABASE_URL: postgresql://vlm:vlm@localhost:5432/vlm
+        run: npm run db:smoke
+
 
