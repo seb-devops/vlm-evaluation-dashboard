@@ -2,7 +2,7 @@
 
 ### Overview
 - **Primary goal**: Manage vision-language model (VLM) experiment runs over PDF datasets with prompt versions sourced from Langfuse and pluggable evaluators (automated and human-ready).
-- **Assumptions**: TypeScript/Next.js app, Postgres for metadata, Redis/BullMQ for orchestration, S3-compatible storage for artifacts, Langfuse for prompt registry and tracing.
+- **Assumptions**: TypeScript/Next.js app, Postgres for metadata, in-process task runner (single-node) for orchestration, S3-compatible storage for artifacts, Langfuse for prompt registry and tracing.
 
 ### Goals and Scope
 - **In-scope**
@@ -23,8 +23,8 @@
 
 ### High-Level Architecture
 - **Web App**: Next.js (App Router) for UI + API routes for control plane
-- **Worker(s)**: Separate job processors for ingestion, inference, evaluation (BullMQ)
-- **Queue**: Redis + BullMQ for jobs and rate control
+- **Worker(s)**: In-process task runner(s) within the web process for ingestion, inference, evaluation (single-node)
+- **Queue**: None initially; simple in-memory queueing (sequential execution)
 - **Database**: Postgres via Prisma ORM
 - **Object Storage**: S3-compatible (AWS S3 or MinIO) for PDFs, per-page images, artifacts
 - **Langfuse**: Prompt registry + tracing (inference and judge)
@@ -100,7 +100,7 @@
 - Version pinning: record resolved prompt version and dataset version hash on run creation
 
 ### Rate Limiting & Budgets
-- Per-provider RPM/TPM controls and adaptive concurrency
+- Simple per-provider RPM/TPM controls with sleep-based pacing in a single process
 - Run-level budget caps with hard stop
 - Exponential backoff with jitter on throttling/errors
 
@@ -152,11 +152,11 @@ POST   /api/test/evaluator           # dry-run evaluator
 
 ### Technology Choices
 - Frontend: Next.js (App Router), React, Tailwind/Chakra
-- Backend: Next.js API routes, Prisma + Postgres, BullMQ + Redis
+- Backend: Next.js API routes, Prisma + Postgres, in-process task runner (no Redis)
 - Langfuse: Node SDK for prompt fetch and tracing
 - PDF processing: Node (pdf-lib/pdftoppm) for MVP; Python sidecar (FastAPI + PyMuPDF/pdf2image + Tesseract) for robustness
 - Auth: NextAuth (GitHub/Google) or basic auth for MVP
-- Deployment: Docker Compose (web, worker, redis, postgres, minio); optional cloud later
+- Deployment: Docker Compose (web, postgres, minio); optional cloud later
 
 ### Metrics & Visualizations
 - Aggregates: accuracy/pass rate, average rubric score, invalid rate, cost/sample, latency

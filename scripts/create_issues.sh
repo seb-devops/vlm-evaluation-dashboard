@@ -14,7 +14,7 @@ if ! gh auth status >/dev/null 2>&1; then
 fi
 
 # Determine repo context: prefer current git repo; otherwise require GH_REPO env var (owner/repo)
-REPO_ARG=""
+REPO_ARG=()
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   # Inside a git repo; gh will infer repo from origin
   :
@@ -66,7 +66,7 @@ create_issue() {
 # M0 – Infrastructure and Foundations  #
 ########################################
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Add docker-compose services for Postgres, Redis, and MinIO. Provide example env and helpers.
 
@@ -79,9 +79,10 @@ Acceptance Criteria:
 
 Dependencies: None
 EOF
+)
 create_issue "Bootstrap Docker Compose (Postgres, Redis, MinIO)" "$BODY" "M0"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Initialize Prisma ORM, DB connection, and first migration setup.
 
@@ -93,9 +94,10 @@ Acceptance Criteria:
 
 Dependencies: Docker Compose
 EOF
+)
 create_issue "Prisma setup and migration baseline" "$BODY" "M0"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Implement core Prisma models for text-only flows with gold answers: Dataset, Document, Sample (expected_answer), PromptBinding, ModelConfig, Evaluator, Run, RunItem, ProviderCredential, AggregateMetrics, PriceBook (optional).
 
@@ -108,9 +110,10 @@ Acceptance Criteria:
 
 Dependencies: Prisma baseline
 EOF
+)
 create_issue "Core schema v1 (text-only, gold answers)" "$BODY" "M0"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Centralized environment configuration with validation for DB, Redis, MinIO, Langfuse, OpenAI-compatible endpoint.
 
@@ -122,9 +125,10 @@ Acceptance Criteria:
 
 Dependencies: None
 EOF
+)
 create_issue "Server config and configuration module" "$BODY" "M0"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Bootstrap BullMQ with Redis, queue connection helpers, and a health endpoint.
 
@@ -136,9 +140,10 @@ Acceptance Criteria:
 
 Dependencies: Docker Compose
 EOF
+)
 create_issue "Redis + BullMQ scaffolding" "$BODY" "M0"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Implement S3/MinIO client abstraction with presigned URL support and bucket initialization.
 
@@ -150,9 +155,10 @@ Acceptance Criteria:
 
 Dependencies: Docker Compose
 EOF
+)
 create_issue "S3/MinIO client abstraction" "$BODY" "M0"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Initialize Langfuse SDK, provide wrapper for traces/spans with safe no-op when not configured.
 
@@ -164,13 +170,14 @@ Acceptance Criteria:
 
 Dependencies: Config
 EOF
+)
 create_issue "Langfuse SDK integration scaffolding" "$BODY" "M0"
 
 #############################
 # M1 – Dataset and Parsing   #
 #############################
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 API to create dataset metadata and generate presigned upload URLs for PDFs.
 
@@ -182,9 +189,10 @@ Acceptance Criteria:
 
 Dependencies: Storage client, schema
 EOF
+)
 create_issue "Dataset upload API with presigned URLs" "$BODY" "M1"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Worker job to extract text per page from uploaded PDFs and create Document + Sample rows.
 
@@ -196,9 +204,10 @@ Acceptance Criteria:
 
 Dependencies: Worker, storage client
 EOF
+)
 create_issue "Parsing job: PDF text extraction (per-page)" "$BODY" "M1"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 API to trigger parsing for a dataset and update status.
 
@@ -210,9 +219,10 @@ Acceptance Criteria:
 
 Dependencies: Parsing job
 EOF
+)
 create_issue "Trigger parsing API" "$BODY" "M1"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 UI pages to create dataset, upload PDF, trigger parsing, and view status.
 
@@ -224,9 +234,10 @@ Acceptance Criteria:
 
 Dependencies: Dataset APIs
 EOF
+)
 create_issue "Datasets UI: list/create/parse status" "$BODY" "M1"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Component to preview per-page extracted text for small PDFs.
 
@@ -238,13 +249,14 @@ Acceptance Criteria:
 
 Dependencies: Dataset APIs
 EOF
+)
 create_issue "Sample preview UI (text-only, per-page)" "$BODY" "M1"
 
 ########################################
 # M2 – Prompts, Models, Run Creation   #
 ########################################
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Backend wrappers to list Langfuse prompts/versions and store PromptBinding (read/pin only).
 
@@ -256,9 +268,10 @@ Acceptance Criteria:
 
 Dependencies: Langfuse SDK
 EOF
+)
 create_issue "Langfuse prompt browse/read/pin API" "$BODY" "M2"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Define `{ context, question, instructions }` variable schema and mapping to samples.
 
@@ -270,9 +283,10 @@ Acceptance Criteria:
 
 Dependencies: Prompt binding
 EOF
+)
 create_issue "Prompt variables schema (MVP)" "$BODY" "M2"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Implement client for OpenAI-compatible endpoints (configurable base URL and key) with a test route.
 
@@ -284,9 +298,10 @@ Acceptance Criteria:
 
 Dependencies: Config
 EOF
+)
 create_issue "OpenAI-spec compatible model client" "$BODY" "M2"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Create/update ModelConfig entities (model_id, temperature, max_tokens) via API and UI.
 
@@ -298,9 +313,10 @@ Acceptance Criteria:
 
 Dependencies: None
 EOF
+)
 create_issue "ModelConfig CRUD (UI + API)" "$BODY" "M2"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Wizard to choose dataset, prompt binding, model config, evaluators (placeholder), run params (batch, concurrency), budget cap.
 
@@ -312,13 +328,14 @@ Acceptance Criteria:
 
 Dependencies: Dataset, prompt, model CRUD
 EOF
+)
 create_issue "Run creation wizard (MVP)" "$BODY" "M2"
 
 ############################################
 # M2.5 – Execution Pipeline and Caching    #
 ############################################
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Worker pipeline that builds text prompts for each sample, calls model, and persists RunItem.
 
@@ -330,9 +347,10 @@ Acceptance Criteria:
 
 Dependencies: Model client, queue
 EOF
+)
 create_issue "Execution pipeline job (inference)" "$BODY" "M2.5"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Add Langfuse trace/span creation for each inference and store trace id in RunItem.
 
@@ -344,9 +362,10 @@ Acceptance Criteria:
 
 Dependencies: Pipeline
 EOF
+)
 create_issue "Langfuse tracing for inference" "$BODY" "M2.5"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Deterministic caching using a stable key (model_id, prompt_version, variables, text hash, params) with read-write policy.
 
@@ -358,9 +377,10 @@ Acceptance Criteria:
 
 Dependencies: Pipeline
 EOF
+)
 create_issue "Deterministic caching (read-write)" "$BODY" "M2.5"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Track estimated cost per item and stop run when per-run budget cap is exceeded.
 
@@ -372,13 +392,14 @@ Acceptance Criteria:
 
 Dependencies: Pipeline, pricebook/static pricing
 EOF
+)
 create_issue "Per-run budget cap" "$BODY" "M2.5"
 
 ###############################
 # M3 – Evaluation and Metrics #
 ###############################
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Compare model output to expected_answer with normalization (lowercase, trim, punctuation, whitespace).
 
@@ -390,9 +411,10 @@ Acceptance Criteria:
 
 Dependencies: Run items
 EOF
+)
 create_issue "Evaluator: Correctness (gold answer, exact/normalized)" "$BODY" "M3"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 String similarity fallback (Jaro-Winkler or Levenshtein) to produce partial scores.
 
@@ -404,9 +426,10 @@ Acceptance Criteria:
 
 Dependencies: Correctness (normalized)
 EOF
+)
 create_issue "Evaluator: Correctness (string similarity fallback)" "$BODY" "M3"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Heuristic checks for instruction adherence (required keywords/format markers) with weights and thresholds.
 
@@ -418,9 +441,10 @@ Acceptance Criteria:
 
 Dependencies: Evaluator framework
 EOF
+)
 create_issue "Evaluator: Instruction adherence (heuristics)" "$BODY" "M3"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Standard evaluator interface, registry, and orchestration with persistence in RunItem.eval_results.
 
@@ -432,9 +456,10 @@ Acceptance Criteria:
 
 Dependencies: Pipeline
 EOF
+)
 create_issue "Evaluator framework and storage" "$BODY" "M3"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Compute per-run aggregates (accuracy, avg score, latency, cost) and persist in AggregateMetrics.
 
@@ -446,9 +471,10 @@ Acceptance Criteria:
 
 Dependencies: Evaluations complete
 EOF
+)
 create_issue "Aggregates and metrics computation" "$BODY" "M3"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Run detail page with basic charts and items table (status, outputs, scores, cost).
 
@@ -460,9 +486,10 @@ Acceptance Criteria:
 
 Dependencies: Aggregates API
 EOF
+)
 create_issue "Run detail UI (metrics + items table)" "$BODY" "M3"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Per-sample drilldown to view input text, prompt variables, model output, evaluation scores, and Langfuse trace link.
 
@@ -474,9 +501,10 @@ Acceptance Criteria:
 
 Dependencies: Traces in pipeline
 EOF
+)
 create_issue "Per-sample drilldown UI" "$BODY" "M3"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Export run data to CSV including inputs, outputs, each evaluation score, and cost fields.
 
@@ -488,13 +516,14 @@ Acceptance Criteria:
 
 Dependencies: Items populated
 EOF
+)
 create_issue "CSV export (inputs, outputs, evaluations, costs)" "$BODY" "M3"
 
 ################################
 # M4 – Comparison and Slices   #
 ################################
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Compare a run vs a baseline run with delta metrics and per-item diffs by sample id.
 
@@ -506,9 +535,10 @@ Acceptance Criteria:
 
 Dependencies: Aggregates
 EOF
+)
 create_issue "Baseline selection and run comparison API" "$BODY" "M4"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 UI to display comparison deltas and changed items with filters and links to drilldown.
 
@@ -520,13 +550,14 @@ Acceptance Criteria:
 
 Dependencies: Compare API
 EOF
+)
 create_issue "Compare UI (metrics deltas + table)" "$BODY" "M4"
 
 ############################
 # M5 – Polish & Reliability #
 ############################
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Local single-user guard (basic session), config-gated for easy local development.
 
@@ -538,9 +569,10 @@ Acceptance Criteria:
 
 Dependencies: None
 EOF
+)
 create_issue "Simple single-user auth" "$BODY" "M5"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Standardize retries with exponential backoff and classify error categories.
 
@@ -552,9 +584,10 @@ Acceptance Criteria:
 
 Dependencies: Pipeline
 EOF
+)
 create_issue "Retry/backoff and error categories" "$BODY" "M5"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Resume incomplete runs and ensure idempotent item processing.
 
@@ -566,9 +599,10 @@ Acceptance Criteria:
 
 Dependencies: Pipeline
 EOF
+)
 create_issue "Resume runs and idempotency" "$BODY" "M5"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 RPM/TPM rate limiting with adaptive concurrency control.
 
@@ -580,9 +614,10 @@ Acceptance Criteria:
 
 Dependencies: Pipeline
 EOF
+)
 create_issue "Rate limiting and adaptive concurrency (RPM/TPM)" "$BODY" "M5"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Update README with setup, envs, and an end-to-end local run guide.
 
@@ -594,9 +629,10 @@ Acceptance Criteria:
 
 Dependencies: M1–M3
 EOF
+)
 create_issue "Documentation (README updates + local run guide)" "$BODY" "M5"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Configure MinIO buckets and minimal policies for local development; document setup.
 
@@ -608,9 +644,10 @@ Acceptance Criteria:
 
 Dependencies: S3 client
 EOF
+)
 create_issue "MinIO IAM and bucket policies (local)" "$BODY" "M5"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Static price book and cost estimator to compute per-item and aggregate costs.
 
@@ -622,9 +659,10 @@ Acceptance Criteria:
 
 Dependencies: Pipeline
 EOF
+)
 create_issue "Price book (static) and cost estimation" "$BODY" "M5"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 ESLint/Prettier and test scaffolding (Jest/Vitest) with CI-friendly scripts.
 
@@ -636,9 +674,10 @@ Acceptance Criteria:
 
 Dependencies: None
 EOF
+)
 create_issue "Lints, types, and test scaffolding" "$BODY" "M5"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Shared UI components for error views and empty/loading states.
 
@@ -650,9 +689,10 @@ Acceptance Criteria:
 
 Dependencies: UI pages
 EOF
+)
 create_issue "Error views and empty states" "$BODY" "M5"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 Feature flag to switch between cross-run caching and per-run cache scope.
 
@@ -664,9 +704,10 @@ Acceptance Criteria:
 
 Dependencies: Caching
 EOF
+)
 create_issue "Feature flag: cross-run cache scope" "$BODY" "M5"
 
-read -r -d '' BODY << 'EOF'
+BODY=$(cat << 'EOF'
 Description:
 UI to trigger CSV export and download via signed link; optional retention policy.
 
@@ -678,6 +719,7 @@ Acceptance Criteria:
 
 Dependencies: CSV export API
 EOF
+)
 create_issue "Export UX and file retention" "$BODY" "M5"
 
 echo "All issue creation attempts finished."
