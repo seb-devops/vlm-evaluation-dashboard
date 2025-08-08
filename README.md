@@ -2,16 +2,19 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+# 1) Install deps
+npm install
+
+# 2) Bootstrap infra (Postgres, Redis, MinIO)
+cp -n .env.example .env || true
+docker compose up -d --wait
+
+# 3) Healthcheck
+make health
+
+# 4) Run the development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
