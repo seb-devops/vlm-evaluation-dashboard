@@ -7,16 +7,7 @@ CREATE TYPE "RunStatus" AS ENUM ('PENDING', 'RUNNING', 'PAUSED', 'COMPLETED', 'F
 -- CreateEnum
 CREATE TYPE "RunItemStatus" AS ENUM ('PENDING', 'SUCCESS', 'ERROR', 'SKIPPED');
 
--- CreateTable
-CREATE TABLE "AppMeta" (
-    "id" SERIAL NOT NULL,
-    "key" TEXT NOT NULL,
-    "value" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "AppMeta_pkey" PRIMARY KEY ("id")
-);
+-- AppMeta already created in initial migration; skip duplicate
 
 -- CreateTable
 CREATE TABLE "Dataset" (
@@ -192,8 +183,7 @@ CREATE TABLE "PriceBook" (
     CONSTRAINT "PriceBook_pkey" PRIMARY KEY ("id")
 );
 
--- CreateIndex
-CREATE UNIQUE INDEX "AppMeta_key_key" ON "AppMeta"("key");
+-- AppMeta unique index already created; skip duplicate
 
 -- CreateIndex
 CREATE UNIQUE INDEX "RunEvaluator_runId_evaluatorId_key" ON "RunEvaluator"("runId", "evaluatorId");
