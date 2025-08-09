@@ -13,6 +13,7 @@ export default function DatasetsPage() {
   const [items, setItems] = useState<DatasetItem[]>([])
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [file, setFile] = useState<File | null>(null)
   const [creating, setCreating] = useState(false)
 
   useEffect(() => {
@@ -23,7 +24,7 @@ export default function DatasetsPage() {
   }, [])
 
   const handleCreate = async () => {
-    if (!name) return
+    if (!name || !file) return
     setCreating(true)
     try {
       const res = await fetch('/api/datasets', {
@@ -34,15 +35,14 @@ export default function DatasetsPage() {
       const data = await res.json()
       if (res.ok) {
         const { datasetId, upload } = data
-        // create an empty Blob to test presigned flow; user will replace with real PDF
-        const testBlob = new Blob([new Uint8Array([1, 2, 3])], { type: 'application/pdf' })
-        await fetch(upload.url, { method: 'PUT', body: testBlob, headers: { 'content-type': 'application/pdf' } })
+        await fetch(upload.url, { method: 'PUT', body: file, headers: { 'content-type': 'application/pdf' } })
         await fetch(`/api/datasets/${datasetId}/parse`, { method: 'POST' })
         // reload list
         const list = await fetch('/api/datasets').then((r) => r.json())
         setItems(list.datasets)
         setName('')
         setDescription('')
+        setFile(null)
       } else {
         console.error(data)
       }
@@ -70,28 +70,38 @@ export default function DatasetsPage() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
+          <input
+            aria-label="PDF file"
+            className="border rounded px-3 py-2"
+            type="file"
+            accept="application/pdf"
+            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          />
           <button
             className="bg-black text-white rounded px-4 py-2 disabled:opacity-50"
             onClick={handleCreate}
-            disabled={!name || creating}
+            disabled={!name || !file || creating}
           >
-            {creating ? 'Creating…' : 'Create & Parse (demo)'}
+            {creating ? 'Creating…' : 'Create & Parse'}
           </button>
         </div>
       </div>
 
       <div className="divide-y border rounded">
         {items.map((d) => (
-          <div key={d.id} className="p-4">
+          <a key={d.id} href={`/datasets/${d.id}`} className="block p-4 hover:bg-gray-50">
             <div className="font-medium">{d.name}</div>
             <div className="text-sm text-gray-600">{d.description}</div>
             <div className="text-sm">Docs: {d._count.documents} • Samples: {d._count.samples}</div>
-          </div>
+          </a>
         ))}
         {items.length === 0 && <div className="p-4 text-sm text-gray-500">No datasets yet.</div>}
       </div>
     </div>
   )
 }
+
+
+
 
 
