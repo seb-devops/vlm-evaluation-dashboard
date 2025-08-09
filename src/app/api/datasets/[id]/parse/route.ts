@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/src/lib/db'
-import { config } from '@/src/lib/config'
 import { getObjectStream } from '@/src/lib/storage/s3Client'
 import pdf from 'pdf-parse'
+import { badRequest, notFound } from '@/src/lib/http'
 
 export const POST = async (_req: NextRequest, { params }: { params: { id: string } }) => {
   const datasetId = params.id
   const dataset = await prisma.dataset.findUnique({ where: { id: datasetId } })
-  if (!dataset) return NextResponse.json({ error: 'dataset not found' }, { status: 404 })
+  if (!dataset) return notFound('dataset not found')
 
   const keyPrefix = `datasets/${datasetId}/raw/`
   // For MVP, assume single file named after dataset
   const key = `${keyPrefix}${encodeURIComponent(dataset.name)}.pdf`
   const stream: any = await getObjectStream(key)
-  if (!stream) return NextResponse.json({ error: 'pdf not found in storage' }, { status: 404 })
+  if (!stream) return notFound('pdf not found in storage')
 
   const buf = await streamToBuffer(stream as NodeJS.ReadableStream)
   const data = await pdf(buf)

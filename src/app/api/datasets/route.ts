@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/src/lib/db'
 import { ensureBucketExists, getPresignedUrl } from '@/src/lib/storage/s3Client'
+import { z } from 'zod'
+import { parseJson, badRequest } from '@/src/lib/http'
 
 export const POST = async (req: NextRequest) => {
-  const { name, description } = await req.json()
-  if (!name) return NextResponse.json({ error: 'name required' }, { status: 400 })
+  const Body = z.object({ name: z.string().min(1), description: z.string().optional() })
+  const parsed = await parseJson(req, Body)
+  if (!('ok' in parsed) || !parsed.ok) return parsed.res
+  const { name, description } = parsed.data
 
   const dataset = await prisma.dataset.create({
     data: {
