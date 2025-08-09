@@ -11,7 +11,8 @@
     "prisma:migrate:dev": "prisma migrate dev --name init --create-only",
     "db:migrate": "prisma migrate deploy",
     "db:seed": "ts-node prisma/seed.ts || node prisma/seed.js",
-    "db:smoke": "ts-node scripts/db-smoke.ts || node scripts/db-smoke.js"
+    "db:smoke": "ts-node scripts/db-smoke.ts || node scripts/db-smoke.js",
+    "test": "vitest run"
   },
   "dependencies": {
     "react": "19.1.0",
@@ -33,6 +34,8 @@
     "eslint": "^9",
     "eslint-config-next": "^15",
     "prisma": "^5.18.0",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "vitest": "^2.1.4",
+    "vite-tsconfig-paths": "^5.1.2"
   }
 }

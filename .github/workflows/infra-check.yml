@@ -47,6 +47,9 @@ jobs:
       - name: Type check
         run: npx tsc -v && npx tsc --noEmit
 
+      - name: Unit tests
+        run: npm test --silent
+
       - name: Prisma generate
         run: npm run prisma:generate
 
