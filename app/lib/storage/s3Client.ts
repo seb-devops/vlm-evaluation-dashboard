@@ -1,6 +1,6 @@
 import { S3Client, CreateBucketCommand, HeadBucketCommand, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { config } from '@/src/lib/config'
+import { config } from '@/app/lib/config'
 
 let cachedClient: S3Client | null = null
 
@@ -61,5 +61,8 @@ export const getPresignedUrl = async (key: string, method: 'get' | 'put', conten
   const cmd = new PutObjectCommand({ Bucket: config.S3_BUCKET, Key: key, ContentType: contentType })
   return getSignedUrl(s3, cmd, { expiresIn: expiresInSeconds })
 }
+
+
+
 
 
