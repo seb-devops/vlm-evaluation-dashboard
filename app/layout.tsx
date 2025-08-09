@@ -24,10 +24,25 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-50 text-slate-900`}>
+        <header className="bg-gradient-to-r from-sky-600 to-indigo-600 text-white">
+          <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
+            <a href="/" className="flex items-center gap-2">
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">VL</span>
+              <span className="text-lg font-semibold tracking-wide">VLM Lab</span>
+            </a>
+            <nav className="hidden md:flex items-center gap-6 text-sm">
+              <a href="/datasets" className="hover:text-white/90">Datasets</a>
+              <a href="/runs" className="hover:text-white/90">Runs</a>
+              <a href="/evaluators" className="hover:text-white/90">Evaluators</a>
+              <a href="/settings" className="hover:text-white/90">Settings</a>
+            </nav>
+          </div>
+        </header>
+        <main className="mx-auto max-w-7xl px-6 py-8">{children}</main>
+        <footer className="border-t bg-white/60 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+          <div className="mx-auto max-w-7xl px-6 py-4 text-sm text-slate-500">© {new Date().getFullYear()} VLM Lab</div>
+        </footer>
       </body>
     </html>
   );

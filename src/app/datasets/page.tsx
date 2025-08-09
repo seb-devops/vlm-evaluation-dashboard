@@ -52,51 +52,40 @@ export default function DatasetsPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="space-y-2">
-        <h1 className="text-2xl font-semibold">Datasets</h1>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <input
-            aria-label="Dataset name"
-            className="border rounded px-3 py-2"
-            placeholder="Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <input
-            aria-label="Dataset description"
-            className="border rounded px-3 py-2 flex-1"
-            placeholder="Description (optional)"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-          <input
-            aria-label="PDF file"
-            className="border rounded px-3 py-2"
-            type="file"
-            accept="application/pdf"
-            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-          />
-          <button
-            className="bg-black text-white rounded px-4 py-2 disabled:opacity-50"
-            onClick={handleCreate}
-            disabled={!name || !file || creating}
-          >
-            {creating ? 'Creating…' : 'Create & Parse'}
+    <div className="space-y-8">
+      <section className="card p-6 space-y-4">
+        <div>
+          <h1 className="text-xl font-semibold">Create dataset</h1>
+          <p className="text-sm text-slate-600">Upload a PDF and we’ll extract text per page.</p>
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
+          <input aria-label="Dataset name" className="input" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
+          <input aria-label="Dataset description" className="input sm:col-span-2" placeholder="Description (optional)" value={description} onChange={(e) => setDescription(e.target.value)} />
+          <input aria-label="PDF file" className="input" type="file" accept="application/pdf" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+        </div>
+        <div>
+          <button className="btn-primary disabled:opacity-50" onClick={handleCreate} disabled={!name || !file || creating}>
+            {creating ? 'Processing…' : 'Create & Parse'}
           </button>
         </div>
-      </div>
+      </section>
 
-      <div className="divide-y border rounded">
-        {items.map((d) => (
-          <a key={d.id} href={`/datasets/${d.id}`} className="block p-4 hover:bg-gray-50">
-            <div className="font-medium">{d.name}</div>
-            <div className="text-sm text-gray-600">{d.description}</div>
-            <div className="text-sm">Docs: {d._count.documents} • Samples: {d._count.samples}</div>
-          </a>
-        ))}
-        {items.length === 0 && <div className="p-4 text-sm text-gray-500">No datasets yet.</div>}
-      </div>
+      <section className="space-y-3">
+        <h2 className="text-lg font-medium">Datasets</h2>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((d) => (
+            <a key={d.id} href={`/datasets/${d.id}`} className="card p-4 hover:shadow">
+              <div className="flex items-center justify-between">
+                <div className="font-medium">{d.name}</div>
+                <div className="text-xs text-slate-500">{new Date(d.createdAt).toLocaleDateString()}</div>
+              </div>
+              <div className="mt-1 text-sm text-slate-600 line-clamp-2">{d.description}</div>
+              <div className="mt-2 text-sm">Docs: {d._count.documents} • Samples: {d._count.samples}</div>
+            </a>
+          ))}
+          {items.length === 0 && <div className="text-sm text-slate-500">No datasets yet.</div>}
+        </div>
+      </section>
     </div>
   )
 }
