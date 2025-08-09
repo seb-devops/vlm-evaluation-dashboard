@@ -11,7 +11,7 @@
     "prisma:migrate:dev": "prisma migrate dev --name init --create-only",
     "db:migrate": "prisma migrate deploy",
     "db:seed": "ts-node prisma/seed.ts || node prisma/seed.js",
-    "db:smoke": "ts-node scripts/db-smoke.ts",
+    "db:smoke": "node scripts/db-smoke.js",
     "test": "vitest run"
   },
   "dependencies": {
