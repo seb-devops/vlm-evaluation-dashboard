@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { ZodError, ZodSchema } from 'zod'
+import { ZodSchema } from 'zod'
 
 export const badRequest = (message: string, details?: unknown) =>
   NextResponse.json({ error: message, details }, { status: 400 })
@@ -15,13 +15,16 @@ export const parseJson = async <T>(req: Request, schema: ZodSchema<T>) => {
     const json = await req.json()
     const result = schema.safeParse(json)
     if (!result.success) {
-      const err: ZodError = result.error
-      return { ok: false as const, res: badRequest('Invalid request body', err.issues) }
+      return { ok: false as const, res: badRequest('Invalid request body', result.error.issues) }
     }
     return { ok: true as const, data: result.data }
   } catch (e) {
     return { ok: false as const, res: badRequest('Malformed JSON') }
   }
 }
+
+
+
+
 
 

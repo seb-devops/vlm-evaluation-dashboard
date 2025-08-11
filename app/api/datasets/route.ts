@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/src/lib/db'
-import { ensureBucketExists, getPresignedUrl } from '@/src/lib/storage/s3Client'
+import { prisma } from '@/app/lib/db'
+import { ensureBucketExists, getPresignedUrl } from '@/app/lib/storage/s3Client'
 import { z } from 'zod'
-import { parseJson, badRequest } from '@/src/lib/http'
+import { parseJson } from '@/app/lib/http'
 
 export const GET = async () => {
   const datasets = await prisma.dataset.findMany({
@@ -31,6 +31,7 @@ export const POST = async (req: NextRequest) => {
       tags: [],
       storageLocation: '',
       parseConfig: { mode: 'text' },
+
       versionHash: 'v1',
     },
   })
@@ -41,5 +42,6 @@ export const POST = async (req: NextRequest) => {
 
   return NextResponse.json({ datasetId: dataset.id, upload: { url, key } })
 }
+
 
 

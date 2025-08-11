@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/src/lib/db'
-import { getObjectStream } from '@/src/lib/storage/s3Client'
+import { prisma } from '@/app/lib/db'
+import { getObjectStream } from '@/app/lib/storage/s3Client'
 import pdf from 'pdf-parse'
-import { badRequest, notFound } from '@/src/lib/http'
+import { notFound } from '@/app/lib/http'
 
 export const POST = async (_req: NextRequest, { params }: { params: { id: string } }) => {
   const datasetId = params.id
@@ -10,7 +10,6 @@ export const POST = async (_req: NextRequest, { params }: { params: { id: string
   if (!dataset) return notFound('dataset not found')
 
   const keyPrefix = `datasets/${datasetId}/raw/`
-  // For MVP, assume single file named after dataset
   const key = `${keyPrefix}${encodeURIComponent(dataset.name)}.pdf`
   const stream: any = await getObjectStream(key)
   if (!stream) return notFound('pdf not found in storage')
@@ -53,5 +52,4 @@ const streamToBuffer = (stream: NodeJS.ReadableStream): Promise<Buffer> => {
     stream.on('end', () => resolve(Buffer.concat(chunks)))
   })
 }
-
 

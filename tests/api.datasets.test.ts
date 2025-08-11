@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseJson } from '@/src/lib/http'
+import { parseJson } from '@/app/lib/http'
 import { z } from 'zod'
 
 const makeRequest = (body: unknown) =>
