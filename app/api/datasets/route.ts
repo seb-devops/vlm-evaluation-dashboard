@@ -31,6 +31,7 @@ export const POST = async (req: NextRequest) => {
       tags: [],
       storageLocation: '',
       parseConfig: { mode: 'text' },
+
       versionHash: 'v1',
     },
   })
@@ -42,6 +43,5 @@ export const POST = async (req: NextRequest) => {
   return NextResponse.json({ datasetId: dataset.id, upload: { url, key } })
 }
 
-export { GET, POST } from '@/src/app/api/datasets/route'
 
 
